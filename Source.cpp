@@ -3,8 +3,8 @@
 
 int main()
 {
-	const int SCREENWIDTH = 1000;
-	const int SCREENHEIGHT = 600;
+	const int SCREENWIDTH = 1280;
+	const int SCREENHEIGHT = 780;
 
 	InitWindow(SCREENWIDTH, SCREENHEIGHT, "FallingSand");
 	SetTargetFPS(120);
@@ -15,14 +15,25 @@ int main()
 	const int CELL_SIZE = 10;
 	const int GRID_WIDTH = SCREENWIDTH / CELL_SIZE;
 	const int GRID_HEIGHT = SCREENHEIGHT / CELL_SIZE;
-	std::vector<std::vector<bool>> grid(GRID_WIDTH, std::vector<bool>(GRID_HEIGHT, false));
+	std::vector<std::vector<bool>> grid(GRID_WIDTH*100, std::vector<bool>(GRID_HEIGHT*100, false));
+	
+
 
 
 	while (!WindowShouldClose())
 	{
-	float dt = GetFrameTime();
 		BeginDrawing();
 		ClearBackground(BLACK);
+
+		if (IsKeyPressed(KEY_Q)) {
+			Positions.clear();
+			Velocity.clear();
+			for (int i = 0;i<GRID_WIDTH;i++) {
+				for (int j = 0;j < GRID_HEIGHT;j++) {
+					grid[i][j] = false;
+				}
+			}
+		}
 
 		if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
 			Vector2 Mousy = GetMousePosition();
@@ -32,25 +43,27 @@ int main()
 			Velocity.push_back({ 0,1 });
 			int cellX = int(Mousy.x) / CELL_SIZE;
 			int cellY = int(Mousy.y) / CELL_SIZE;
-			if (cellX <= SCREENWIDTH) {
-				cellX = 1;
+			if (cellX <= 0) {
+				cellX = 0;
 			}
-			if(cellX >= SCREENWIDTH) {
-				cellX = SCREENWIDTH-1;
-			}
-			if (cellY <= SCREENHEIGHT){
-				cellY = 1;
-			}
-			if(cellY >= SCREENHEIGHT) {
-				cellY = SCREENHEIGHT-1;
+			if (cellY <= 0) {
+				cellY =0;
 			}
 			grid[cellX][cellY] = true;
 		}
+
+
 
 		for (int w = 0; w < Positions.size(); w++) {
 			if (Velocity[w].y == 1) {
 				int cellX = int(Positions[w].x) / CELL_SIZE;
 				int cellY = int(Positions[w].y) / CELL_SIZE;
+				if (cellY <= 0) {
+					cellY = 0;
+				}
+				if (cellX <= 0) {
+					cellX = 0;
+				}
 				int nextCellY = cellY + 1;
 
 				if (nextCellY >= GRID_HEIGHT || grid[cellX][nextCellY]) {
@@ -61,6 +74,12 @@ int main()
 					grid[cellX][cellY] = false;
 					Positions[w].y += CELL_SIZE;
 					grid[cellX][nextCellY] = true;
+				}
+			}
+			else {
+				if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+					Velocity[w].y = 1;
+
 				}
 			}
 		}	
@@ -80,6 +99,5 @@ int main()
 		EndDrawing();
 	}
 	CloseWindow();
-
 	return 0;
 }
